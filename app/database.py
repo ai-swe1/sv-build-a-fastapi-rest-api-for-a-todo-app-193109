@@ -1,0 +1,3 @@
+import os\nfrom sqlalchemy import create_engine\nfrom sqlalchemy.orm import sessionmaker, declarative_base\n\n# Load DATABASE_URL from environment or fall back to a local SQLite file\nDATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./todo.db")\n\n# SQLite needs special connect_args to allow multithreading\nengine = create_engine(
+    DATABASE_URL, connect_args={"check_same_thread": False}
+)\n\nSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)\n\nBase = declarative_base()\n\ndef get_db():\n    """FastAPI dependency that provides a database session and ensures cleanup."""\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\n
